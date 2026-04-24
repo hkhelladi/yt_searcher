@@ -1,0 +1,22 @@
+# Secret — never commit
+.env
+
+# Output files
+outputs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# IDEs / editors
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# Claude Code — local overrides only (keep shared .claude/settings.json if present)
+.claude/settings.local.json

@@ -1,0 +1,32 @@
+output_csv: "results_fr_mortgage_brokers.csv"
+
+searches:
+  - name: "fr_courtier_credit_immobilier"
+    keywords: "courtier crédit immobilier france"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 200
+    max_subscribers: null
+
+  - name: "fr_courtier_pret_immobilier"
+    keywords: "courtier prêt immobilier conseil"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 200
+    max_subscribers: null
+
+  - name: "fr_financement_immobilier"
+    keywords: "financement immobilier banque taux"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 200
+    max_subscribers: null

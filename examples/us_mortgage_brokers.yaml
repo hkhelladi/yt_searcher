@@ -1,0 +1,32 @@
+output_csv: "results_us_mortgage_brokers.csv"
+
+searches:
+  - name: "us_mortgage_brokers_general"
+    keywords: "mortgage broker united states"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 1000
+    max_subscribers: null
+
+  - name: "us_mortgage_brokers_advice"
+    keywords: "mortgage broker tips home loan advice"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 1000
+    max_subscribers: null
+
+  - name: "us_mortgage_loan_officers"
+    keywords: "loan officer mortgage usa"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 500
+    max_subscribers: null

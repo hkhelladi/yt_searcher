@@ -1,0 +1,33 @@
+# BC mortgage brokers — cities in British Columbia.
+# The base also runs as its own CSV (outputs/bc_mortgage_brokers_cities/bc_mortgage_brokers_cities_<ts>.csv).
+# Each variation runs as outputs/bc_mortgage_brokers_cities/<variation>_<ts>.csv.
+
+name: bc_mortgage_brokers_cities
+
+base:
+  keywords: "british columbia mortgage agent"
+  region_code: CA
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 100
+  max_subscribers: null
+
+variations:
+  - {name: british_columbia, keywords: "mortgage agent british columbia"}
+  - {name: vancouver,        keywords: "mortgage agent vancouver"}
+  - {name: victoria,         keywords: "mortgage agent victoria"}
+  - {name: surrey_bc,        keywords: "mortgage agent surrey bc"}
+  - {name: burnaby,          keywords: "mortgage agent burnaby"}
+  - {name: richmond_bc,      keywords: "mortgage agent richmond bc"}
+  - {name: abbotsford,       keywords: "mortgage agent abbotsford"}
+  - {name: coquitlam,        keywords: "mortgage agent coquitlam"}
+  - {name: kelowna,          keywords: "mortgage agent kelowna"}
+  - {name: nanaimo,          keywords: "mortgage agent nanaimo"}
+  - {name: langley_bc,       keywords: "mortgage agent langley bc"}
+  - {name: west_vancouver,   keywords: "mortgage agent west vancouver"}
+  - {name: north_vancouver,  keywords: "mortgage agent north vancouver"}
+  - {name: delta_bc,         keywords: "mortgage agent delta bc"}
+  - {name: white_rock,       keywords: "mortgage agent white rock"}
+  - {name: kamloops,         keywords: "mortgage agent kamloops"}

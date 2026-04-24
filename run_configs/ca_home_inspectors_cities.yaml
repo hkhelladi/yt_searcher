@@ -1,0 +1,46 @@
+# Canada home inspectors — biggest cities in every major province.
+# BC gets top-8 coverage since it's a hot market.
+# QC cities override language to `fr` and use the professional term
+# "inspecteur en bâtiment" (standard in Quebec).
+
+name: ca_home_inspectors_cities
+
+base:
+  keywords: "home inspector canada"
+  region_code: CA
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 100
+  max_subscribers: null
+
+variations:
+  # ── Ontario ──
+  - {name: toronto,        keywords: "home inspector toronto"}
+  - {name: mississauga,    keywords: "home inspector mississauga"}
+  - {name: ottawa,         keywords: "home inspector ottawa"}
+  - {name: hamilton,       keywords: "home inspector hamilton"}
+  - {name: kitchener,      keywords: "home inspector kitchener waterloo"}
+  - {name: london_ontario, keywords: "home inspector london ontario"}
+
+  # ── Quebec (French) ──
+  - {name: montreal,    keywords: "inspecteur en bâtiment montréal", language: fr}
+
+  # ── Alberta ──
+  - {name: calgary,  keywords: "home inspector calgary"}
+  - {name: edmonton, keywords: "home inspector edmonton"}
+
+  # ── Prairies / Atlantic ──
+  - {name: winnipeg, keywords: "home inspector winnipeg"}
+  - {name: halifax,  keywords: "home inspector halifax"}
+
+  # ── British Columbia — top 8 (hot market) ──
+  - {name: vancouver,   keywords: "home inspector vancouver"}
+  - {name: surrey_bc,   keywords: "home inspector surrey bc"}
+  - {name: burnaby,     keywords: "home inspector burnaby"}
+  - {name: richmond_bc, keywords: "home inspector richmond bc"}
+  - {name: coquitlam,   keywords: "home inspector coquitlam"}
+  - {name: langley_bc,  keywords: "home inspector langley bc"}
+  - {name: victoria,    keywords: "home inspector victoria bc"}
+  - {name: abbotsford,  keywords: "home inspector abbotsford"}

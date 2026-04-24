@@ -1,0 +1,32 @@
+output_csv: "results_ca_real_estate_agents.csv"
+
+searches:
+  - name: "ca_realtor_en"
+    keywords: "canadian realtor real estate agent"
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 500
+    max_subscribers: null
+
+  - name: "ca_real_estate_tips"
+    keywords: "canada real estate tips buying home"
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 500
+    max_subscribers: null
+
+  - name: "ca_agent_immobilier_fr"
+    keywords: "agent immobilier canada québec"
+    region_code: "CA"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 200
+    max_subscribers: null

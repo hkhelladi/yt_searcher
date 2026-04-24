@@ -1,0 +1,250 @@
+# ─────────────────────────────────────────────────────────────
+# YouTube Searcher – Search Configuration
+# ─────────────────────────────────────────────────────────────
+# API KEY
+#   Required: YouTube Data API v3 key
+#   Get one at: https://console.cloud.google.com/
+#     → APIs & Services → Credentials → Create Credentials → API Key
+#     → Then enable "YouTube Data API v3" in Library
+#
+# QUOTA COST REFERENCE (free tier = 10,000 units/day)
+#   search.list call      : 100 units  (fetches up to 50 channel IDs)
+#   channels.list call    :   1 unit   (batch of up to 50 channels, full details)
+#   ─────────────────────────────────────────────────────────
+#   Cost per search block :
+#     • 50 results  →  100 + 1  =  101 units  (~99 searches/day free)
+#     • 100 results →  200 + 2  =  202 units  (~49 searches/day free)
+#     • 200 results →  400 + 4  =  404 units  (~24 searches/day free)
+#   If you exceed 10,000 units/day, requests return 403 until midnight PT.
+#   Paid quota: ~$0.20 per 10,000 units (enable billing in GCP).
+# ─────────────────────────────────────────────────────────────
+
+
+output_csv: "results.csv"
+
+searches:
+  # ── Canada – Mortgage Brokers ──────────────────────────────
+  - name: "qc_mortgage_brokers_en"
+    keywords: "quebec mortgage agent montreal "
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "qc_mortgage_brokers_fr"
+    keywords: "courtier hypotheque quebec"
+    region_code: "CA"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "on_mortgage_brokers_en"
+    keywords: "ontario mortgage broker"
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "ab_mortgage_brokers_en"
+    keywords: "alberta mortgage agent"
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "bc_mortgage_brokers_en"
+    keywords: "british columbia mortgage agent"
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "ca_mortgage_brokers_tips"
+    keywords: "mortgage broker canada tips advice"
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "ca_mortgage_brokers_fr"
+    keywords: "courtier hypothécaire canada"
+    region_code: "CA"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  # ── US – Mortgage Brokers ──────────────────────────────────
+  - name: "us_mortgage_brokers_en"
+    keywords: "mortgage broker united states"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "us_mortgage_brokers_advice"
+    keywords: "mortgage broker tips home loan advice"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "us_loan_officers"
+    keywords: "loan officer mortgage usa"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  # ── France – Mortgage Brokers ──────────────────────────────
+  - name: "fr_courtier_credit_immobilier"
+    keywords: "courtier crédit immobilier france"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "fr_courtier_pret_immobilier"
+    keywords: "courtier prêt immobilier conseil"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "fr_financement_immobilier"
+    keywords: "financement immobilier banque taux"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  # ── Canada – Real Estate Agents ────────────────────────────
+  - name: "ca_realtor_en"
+    keywords: "canadian realtor real estate agent"
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "ca_real_estate_tips"
+    keywords: "canada real estate tips buying home"
+    region_code: "CA"
+    language: "en"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "ca_agent_immobilier_fr"
+    keywords: "agent immobilier canada québec"
+    region_code: "CA"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  # ── US – Real Estate Agents ────────────────────────────────
+  - name: "us_realtor_en"
+    keywords: "realtor real estate agent united states"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "us_real_estate_investing"
+    keywords: "real estate agent investing tips usa"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "us_real_estate_buyer_guide"
+    keywords: "how to buy a home realtor advice"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  # ── France – Real Estate Agents ────────────────────────────
+  - name: "fr_agent_immobilier"
+    keywords: "agent immobilier france conseil"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "fr_acheter_vendre_immobilier"
+    keywords: "acheter vendre appartement maison france"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null
+
+  - name: "fr_investissement_immobilier"
+    keywords: "investissement immobilier locatif france"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 100
+    max_subscribers: null

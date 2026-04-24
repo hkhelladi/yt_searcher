@@ -1,0 +1,34 @@
+# ON mortgage brokers — cities in Ontario.
+
+name: on_mortgage_brokers_cities
+
+base:
+  keywords: "ontario mortgage broker"
+  region_code: CA
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 100
+  max_subscribers: null
+
+variations:
+  - {name: toronto,        keywords: "mortgage agent toronto"}
+  - {name: ottawa,         keywords: "mortgage agent ottawa"}
+  - {name: mississauga,    keywords: "mortgage agent mississauga"}
+  - {name: brampton,       keywords: "mortgage agent brampton"}
+  - {name: hamilton,       keywords: "mortgage agent hamilton"}
+  - {name: london_ontario, keywords: "mortgage agent london ontario"}
+  - {name: oshawa,         keywords: "mortgage agent oshawa"}
+  - {name: oakville,       keywords: "mortgage agent oakville"}
+  - {name: gta,            keywords: "mortgage agent gta"}
+  - {name: kitchener,      keywords: "mortgage agent kitchener"}
+  - {name: windsor,        keywords: "mortgage agent windsor"}
+  - {name: st_catharines,  keywords: "mortgage agent st catharines"}
+  - {name: barrie,         keywords: "mortgage agent barrie"}
+  - {name: niagara,        keywords: "mortgage agent niagara"}
+  - {name: guelph,         keywords: "mortgage agent guelph"}
+  - {name: kanata,         keywords: "mortgage agent kanata"}
+  - {name: kingston,       keywords: "mortgage agent kingston"}
+  - {name: milton,         keywords: "mortgage agent milton"}
+  - {name: brantford,      keywords: "mortgage agent brantford"}

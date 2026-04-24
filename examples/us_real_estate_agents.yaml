@@ -1,0 +1,32 @@
+output_csv: "results_us_real_estate_agents.csv"
+
+searches:
+  - name: "us_realtor_general"
+    keywords: "realtor real estate agent united states"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 1000
+    max_subscribers: null
+
+  - name: "us_real_estate_investing"
+    keywords: "real estate agent investing tips usa"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 1000
+    max_subscribers: null
+
+  - name: "us_real_estate_buyer_guide"
+    keywords: "how to buy a home realtor advice"
+    region_code: "US"
+    language: "en"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 500
+    max_subscribers: null

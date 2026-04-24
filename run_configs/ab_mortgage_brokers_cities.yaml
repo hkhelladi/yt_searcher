@@ -1,0 +1,31 @@
+# AB mortgage brokers — cities in Alberta.
+
+name: ab_mortgage_brokers_cities
+
+base:
+  keywords: "alberta mortgage agent"
+  region_code: CA
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 100
+  max_subscribers: null
+
+variations:
+  - {name: calgary,        keywords: "mortgage agent calgary"}
+  - {name: edmonton,       keywords: "mortgage agent edmonton"}
+  - {name: red_deer,       keywords: "mortgage agent red deer"}
+  - {name: lethbridge,     keywords: "mortgage agent lethbridge"}
+  - {name: st_albert,      keywords: "mortgage agent st albert"}
+  - {name: medicine_hat,   keywords: "mortgage agent medicine hat"}
+  - {name: grande_prairie, keywords: "mortgage agent grande prairie"}
+  - {name: airdrie,        keywords: "mortgage agent airdrie"}
+  - {name: spruce_grove,   keywords: "mortgage agent spruce grove"}
+  - {name: lloydminster,   keywords: "mortgage agent lloydminster"}
+  - {name: chestermere,    keywords: "mortgage agent chestermere"}
+  - {name: camrose,        keywords: "mortgage agent camrose"}
+  - {name: okotoks,        keywords: "mortgage agent okotoks"}
+  - {name: cochrane,       keywords: "mortgage agent cochrane"}
+  - {name: canmore,        keywords: "mortgage agent canmore"}
+  - {name: alberta,        keywords: "mortgage agent alberta"}

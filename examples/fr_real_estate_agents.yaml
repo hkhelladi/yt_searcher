@@ -1,0 +1,32 @@
+output_csv: "results_fr_real_estate_agents.csv"
+
+searches:
+  - name: "fr_agent_immobilier"
+    keywords: "agent immobilier france conseil"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 200
+    max_subscribers: null
+
+  - name: "fr_acheter_vendre_immobilier"
+    keywords: "acheter vendre appartement maison france"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "viewCount"
+    search_type: "channel"
+    min_subscribers: 200
+    max_subscribers: null
+
+  - name: "fr_investissement_immobilier"
+    keywords: "investissement immobilier locatif france"
+    region_code: "FR"
+    language: "fr"
+    max_results: 50
+    order: "relevance"
+    search_type: "channel"
+    min_subscribers: 200
+    max_subscribers: null

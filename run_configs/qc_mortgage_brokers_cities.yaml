@@ -1,0 +1,24 @@
+# QC mortgage brokers — French-language search over Quebec regions.
+# Any variation can override any base field — including `language` — so a
+# single YAML could mix EN and FR searches if needed.
+
+name: qc_mortgage_brokers_cities
+
+base:
+  keywords: "courtier hypotheque quebec"
+  region_code: CA
+  language: fr
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 100
+  max_subscribers: null
+
+variations:
+  - {name: montreal,           keywords: "courtier hypotheque montreal"}
+  - {name: quebec_city,        keywords: "courtier hypotheque quebec "}
+  - {name: laval,              keywords: "courtier hypotheque laval"}
+  - {name: gatineau,           keywords: "courtier hypotheque gatineau"}
+  - {name: sherbrooke,         keywords: "courtier hypotheque sherbrooke"}
+  - {name: laurentides,        keywords: "courtier hypotheque laurentides"}
+  - {name: capitale_nationale, keywords: "courtier hypotheque capitale-nationale"}
