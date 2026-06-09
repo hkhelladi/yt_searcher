@@ -25,7 +25,7 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from math import ceil
 
 import yaml
@@ -69,6 +69,10 @@ CSV_FIELDS = [
     "subscribers",
     "total_views",
     "video_count",
+    # ── Channel activity / liveness ──
+    "last_upload_at",
+    "days_since_last_upload",
+    "uploads_last_6mo",
     # ── Contact / business info ──
     "emails",
     "websites",
@@ -174,6 +178,57 @@ def enrich_channels(youtube, channel_ids: list[str]) -> list[dict]:
     return results
 
 
+def get_channel_activity(youtube, uploads_playlist_id: str, now_utc: datetime | None = None) -> dict:
+    """Return liveness signals for a channel by reading its uploads playlist.
+
+    Fetches the latest 50 uploads (1 quota unit) and derives:
+      - last_upload_at         : YYYY-MM-DD of the most recent video
+      - days_since_last_upload : int days from now to that upload
+      - uploads_last_6mo       : count of uploads in the past 180 days (capped at 50)
+
+    All fields are empty strings on any failure (no playlist, deleted, API error).
+    """
+    blank = {"last_upload_at": "", "days_since_last_upload": "", "uploads_last_6mo": ""}
+    if not uploads_playlist_id:
+        return blank
+    try:
+        resp = youtube.playlistItems().list(
+            playlistId=uploads_playlist_id,
+            part="contentDetails",
+            maxResults=50,
+        ).execute()
+    except HttpError:
+        return blank
+
+    items = resp.get("items", [])
+    if not items:
+        return blank
+
+    now = now_utc or datetime.now(timezone.utc)
+    six_months_ago = now - timedelta(days=180)
+
+    timestamps: list[datetime] = []
+    for item in items:
+        ts_str = item.get("contentDetails", {}).get("videoPublishedAt")
+        if not ts_str:
+            continue
+        try:
+            timestamps.append(datetime.fromisoformat(ts_str.replace("Z", "+00:00")))
+        except ValueError:
+            continue
+
+    if not timestamps:
+        return blank
+
+    timestamps.sort(reverse=True)
+    last = timestamps[0]
+    return {
+        "last_upload_at":         last.strftime("%Y-%m-%d"),
+        "days_since_last_upload": (now - last).days,
+        "uploads_last_6mo":       sum(1 for t in timestamps if t >= six_months_ago),
+    }
+
+
 def extract_contact_info(text: str) -> tuple[str, str, str]:
     """Extract emails, website URLs, and phone numbers from free text."""
     if not text:
@@ -195,6 +250,8 @@ def channel_to_row(channel: dict, search_cfg: dict, fetched_at: str) -> dict:
     snippet   = channel.get("snippet", {})
     stats     = channel.get("statistics", {})
     branding  = channel.get("brandingSettings", {}).get("channel", {})
+    content   = channel.get("contentDetails", {})
+    uploads_playlist_id = content.get("relatedPlaylists", {}).get("uploads", "")
 
     description = snippet.get("description", "")
     emails, websites, phones = extract_contact_info(description)
@@ -232,6 +289,11 @@ def channel_to_row(channel: dict, search_cfg: dict, fetched_at: str) -> dict:
         "subscribers":        subscribers,
         "total_views":        int(stats.get("viewCount", 0)),
         "video_count":        int(stats.get("videoCount", 0)),
+        # Activity fields populated post-dedup in run_searches
+        "last_upload_at":         "",
+        "days_since_last_upload": "",
+        "uploads_last_6mo":       "",
+        "_uploads_playlist_id":   uploads_playlist_id,  # internal, popped before CSV write
         "emails":             emails,
         "websites":           websites,
         "phone_numbers":      phones,
@@ -309,9 +371,11 @@ def run_searches(
                 f"{q['channels_calls']} channels call(s) ({q['channels_units']} units) "
                 f"= {q['total_units']} units"
             )
-        print(f"\n  TOTAL THIS RUN : {total_units} units")
+        max_activity = sum(int(s.get("max_results", 50)) for s in searches)
+        print(f"\n  TOTAL THIS RUN : {total_units} units (search + channels)")
+        print(f"  + activity fetch: 1 unit per unique channel (≤ {max_activity} extra, less after dedup)")
         print( "  Free daily quota: 10,000 units")
-        print(f"  Remaining after : {10_000 - total_units} units  (approx)")
+        print(f"  Remaining after : ~{10_000 - total_units - max_activity}–{10_000 - total_units} units")
         if total_units > 10_000:
             print("  ⚠  Exceeds free daily quota — enable billing or reduce max_results.")
         print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n")
@@ -351,6 +415,14 @@ def run_searches(
     if len(unique_rows) < len(all_rows):
         print(f"Deduplicated: {len(all_rows)} → {len(unique_rows)} unique channel(s)")
     all_rows = unique_rows
+
+    # ── Fetch channel activity (last upload, recent cadence) ─
+    if all_rows:
+        print(f"Fetching activity for {len(all_rows)} unique channel(s) (~{len(all_rows)} units)...")
+        now_utc = datetime.now(timezone.utc)
+        for row in all_rows:
+            playlist_id = row.pop("_uploads_playlist_id", "")
+            row.update(get_channel_activity(youtube, playlist_id, now_utc=now_utc))
 
     # ── Write CSV ────────────────────────────────────────────
     if not all_rows:

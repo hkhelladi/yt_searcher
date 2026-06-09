@@ -1,0 +1,40 @@
+# Global chiropractor search — no country restriction, English-leaning.
+# `region_code: null` removes the country bias entirely so US, CA, UK, AU
+# (and any other) channels can surface; `language: en` keeps the ranking
+# tilted toward English content.
+#
+# Variations cover three angles so we don't miss creators who don't brand
+# themselves with the bare word "chiropractor":
+#   1. Profession synonyms       (chiropractic, doctor of chiropractic)
+#   2. What they treat / do      (back pain, neck pain, sciatica, posture, spinal manipulation)
+#   3. Native-YouTube niches     (ASMR chiropractor, "cracks" content) — these
+#      surface huge channels (millions of subs) that medical-term searches miss.
+
+name: chiropractors
+
+base:
+  keywords: "chiropractor"
+  region_code: null
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 1000
+  max_subscribers: null
+
+variations:
+  # ── Profession synonyms ──
+  - {name: chiropractic,           keywords: "chiropractic"}
+  - {name: chiropractic_adjustment, keywords: "chiropractic adjustment"}
+  - {name: doctor_of_chiropractic,  keywords: "doctor of chiropractic"}
+
+  # ── What they treat / do ──
+  - {name: spinal_manipulation, keywords: "spinal manipulation"}
+  - {name: back_pain_relief,    keywords: "back pain relief chiropractor"}
+  - {name: neck_pain,           keywords: "neck pain chiropractor"}
+  - {name: sciatica,            keywords: "sciatica chiropractor"}
+  - {name: posture_correction,  keywords: "posture correction chiropractor"}
+
+  # ── YouTube-native niches (high subscriber counts) ──
+  - {name: asmr_chiropractor,   keywords: "asmr chiropractor"}
+  - {name: chiropractor_cracks, keywords: "chiropractor cracks"}

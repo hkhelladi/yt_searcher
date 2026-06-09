@@ -1,0 +1,52 @@
+# US financial planners — major metros.
+# Base runs the broad "financial planner" search; each variation pins a city.
+
+name: us_financial_planners_cities
+
+base:
+  keywords: "financial planner"
+  region_code: US
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 5000
+  max_subscribers: 50000
+
+variations:
+  - {name: atlanta,        keywords: "financial planner Atlanta"}
+  - {name: austin,         keywords: "financial planner Austin"}
+  - {name: baltimore,      keywords: "financial planner Baltimore"}
+  - {name: boston,         keywords: "financial planner Boston"}
+  - {name: charlotte,      keywords: "financial planner Charlotte"}
+  - {name: chicago,        keywords: "financial planner Chicago"}
+  - {name: cincinnati,     keywords: "financial planner Cincinnati"}
+  - {name: cleveland,      keywords: "financial planner Cleveland"}
+  - {name: columbus,       keywords: "financial planner Columbus"}
+  - {name: dallas,         keywords: "financial planner Dallas"}
+  - {name: denver,         keywords: "financial planner Denver"}
+  - {name: detroit,        keywords: "financial planner Detroit"}
+  - {name: houston,        keywords: "financial planner Houston"}
+  - {name: indianapolis,   keywords: "financial planner Indianapolis"}
+  - {name: jacksonville,   keywords: "financial planner Jacksonville"}
+  - {name: kansas_city,    keywords: "financial planner Kansas City"}
+  - {name: las_vegas,      keywords: "financial planner Las Vegas"}
+  - {name: los_angeles,    keywords: "financial planner Los Angeles"}
+  - {name: miami,          keywords: "financial planner Miami"}
+  - {name: minneapolis,    keywords: "financial planner Minneapolis"}
+  - {name: nashville,      keywords: "financial planner Nashville"}
+  - {name: new_york,       keywords: "financial planner New York"}
+  - {name: orlando,        keywords: "financial planner Orlando"}
+  - {name: phoenix,        keywords: "financial planner Phoenix"}
+  - {name: pittsburgh,     keywords: "financial planner Pittsburgh"}
+  - {name: portland,       keywords: "financial planner Portland"}
+  - {name: raleigh,        keywords: "financial planner Raleigh"}
+  - {name: sacramento,     keywords: "financial planner Sacramento"}
+  - {name: salt_lake_city, keywords: "financial planner Salt Lake City"}
+  - {name: san_antonio,    keywords: "financial planner San Antonio"}
+  - {name: san_diego,      keywords: "financial planner San Diego"}
+  - {name: san_francisco,  keywords: "financial planner San Francisco"}
+  - {name: seattle,        keywords: "financial planner Seattle"}
+  - {name: st_louis,       keywords: "financial planner St Louis"}
+  - {name: tampa,          keywords: "financial planner Tampa"}
+  - {name: washington_dc,  keywords: "financial planner Washington DC"}

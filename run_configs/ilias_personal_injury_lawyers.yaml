@@ -1,0 +1,39 @@
+# Personal injury lawyers / accident attorneys — US-focused with
+# Bay Area + Miami geo angles.
+
+name: ilias_personal_injury_lawyers
+
+base:
+  keywords: "personal injury lawyer"
+  region_code: US
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 1000
+  max_subscribers: 50000
+
+variations:
+  # ── Profession synonyms ──
+  - {name: personal_injury_attorney, keywords: "personal injury attorney"}
+  - {name: injury_attorney,          keywords: "injury attorney"}
+  - {name: accident_attorney,        keywords: "accident attorney"}
+  - {name: accident_lawyer,          keywords: "accident lawyer"}
+
+  # ── Sub-specialties ──
+  - {name: car_accident_lawyer,     keywords: "car accident lawyer"}
+  - {name: auto_accident_attorney,  keywords: "auto accident attorney"}
+  - {name: motorcycle_accident,     keywords: "motorcycle accident lawyer"}
+  - {name: slip_and_fall_lawyer,    keywords: "slip and fall lawyer"}
+  - {name: wrongful_death_lawyer,   keywords: "wrongful death lawyer"}
+  - {name: workers_comp_lawyer,     keywords: "workers compensation lawyer"}
+
+  # ── Bay Area, California ──
+  - {name: personal_injury_bay_area,            keywords: "personal injury lawyer bay area"}
+  - {name: accident_attorney_san_francisco,     keywords: "accident attorney san francisco"}
+  - {name: personal_injury_oakland,             keywords: "personal injury lawyer oakland"}
+
+  # ── Miami, Florida ──
+  - {name: personal_injury_miami,    keywords: "personal injury lawyer miami"}
+  - {name: accident_attorney_miami,  keywords: "accident attorney miami"}
+  - {name: car_accident_miami,       keywords: "car accident lawyer miami"}

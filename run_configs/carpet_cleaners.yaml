@@ -1,0 +1,38 @@
+# Carpet cleaner channels — English, mid-tier (1k–1M subs).
+# `max_subscribers: 1_000_000` filters out mega "satisfying cleaning" channels
+# (Pristine Home etc.) so we surface real small/mid businesses worth outreach.
+#
+# Variations cover three angles:
+#   1. Profession terms          (carpet cleaner, cleaning service/business)
+#   2. Adjacent / related work   (rug, upholstery, steam, stain removal)
+#   3. YouTube-native niches     ("satisfying" / "dirty transformation" — high
+#                                 reach but still capped at 1M subs)
+
+name: carpet_cleaners
+
+base:
+  keywords: "carpet cleaner"
+  region_code: null
+  language: en
+  max_results: 50
+order: relevance
+  search_type: channel
+  min_subscribers: 1000
+  max_subscribers: 1000000
+
+variations:
+  # ── Profession terms ──
+  - {name: carpet_cleaning,          keywords: "carpet cleaning"}
+  - {name: carpet_cleaning_business, keywords: "carpet cleaning business"}
+  - {name: carpet_cleaning_service,  keywords: "carpet cleaning service"}
+  - {name: professional_cleaning,    keywords: "professional carpet cleaning"}
+
+  # ── Adjacent work ──
+  - {name: rug_cleaning,        keywords: "rug cleaning"}
+  - {name: upholstery_cleaning, keywords: "upholstery cleaning"}
+  - {name: steam_cleaning,      keywords: "steam cleaning carpet"}
+  - {name: stain_removal,       keywords: "carpet stain removal"}
+
+  # ── YouTube-native niches ──
+  - {name: satisfying_carpet_cleaning,  keywords: "satisfying carpet cleaning"}
+  - {name: dirty_carpet_transformation, keywords: "dirty carpet cleaning transformation"}

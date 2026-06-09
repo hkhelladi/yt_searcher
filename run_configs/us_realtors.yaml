@@ -1,0 +1,52 @@
+# US financial planners — major metros.
+# Base runs the broad "financial planner" search; each variation pins a city.
+
+name: us_realtors_cities
+
+base:
+  keywords: "realtor united states"
+  region_code: US
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 5000
+  max_subscribers: 100000
+
+variations:
+  - {name: atlanta,        keywords: "realtor Atlanta"}
+  - {name: austin,         keywords: "realtor Austin"}
+  - {name: baltimore,      keywords: "realtor Baltimore"}
+  - {name: boston,         keywords: "realtor Boston"}
+  - {name: charlotte,      keywords: "realtor Charlotte"}
+  - {name: chicago,        keywords: "realtor Chicago"}
+  - {name: cincinnati,     keywords: "realtor Cincinnati"}
+  - {name: cleveland,      keywords: "realtor Cleveland"}
+  - {name: columbus,       keywords: "realtor Columbus"}
+  - {name: dallas,         keywords: "realtor Dallas"}
+  - {name: denver,         keywords: "realtor Denver"}
+  - {name: detroit,        keywords: "realtor Detroit"}
+  - {name: houston,        keywords: "realtor Houston"}
+  - {name: indianapolis,   keywords: "realtor Indianapolis"}
+  - {name: jacksonville,   keywords: "realtor Jacksonville"}
+  - {name: kansas_city,    keywords: "realtor Kansas City"}
+  - {name: las_vegas,      keywords: "realtor Las Vegas"}
+  - {name: los_angeles,    keywords: "realtor Los Angeles"}
+  - {name: miami,          keywords: "realtor Miami"}
+  - {name: minneapolis,    keywords: "realtor Minneapolis"}
+  - {name: nashville,      keywords: "realtor Nashville"}
+  - {name: new_york,       keywords: "realtor New York"}
+  - {name: orlando,        keywords: "realtor Orlando"}
+  - {name: phoenix,        keywords: "realtor Phoenix"}
+  - {name: pittsburgh,     keywords: "realtor Pittsburgh"}
+  - {name: portland,       keywords: "realtor Portland"}
+  - {name: raleigh,        keywords: "realtor Raleigh"}
+  - {name: sacramento,     keywords: "realtor Sacramento"}
+  - {name: salt_lake_city, keywords: "realtor Salt Lake City"}
+  - {name: san_antonio,    keywords: "realtor San Antonio"}
+  - {name: san_diego,      keywords: "realtor San Diego"}
+  - {name: san_francisco,  keywords: "realtor San Francisco"}
+  - {name: seattle,        keywords: "realtor Seattle"}
+  - {name: st_louis,       keywords: "realtor St Louis"}
+  - {name: tampa,          keywords: "realtor Tampa"}
+  - {name: washington_dc,  keywords: "realtor Washington DC"}

@@ -1,0 +1,34 @@
+# Cloud hosting / web hosting — global English tech-niche.
+# No region restriction; min_subscribers: 1000 (tech-niche is more focused than
+# general personal-finance/travel, so the long tail tends to be more relevant).
+
+name: ilias_cloud_web_hosting
+
+base:
+  keywords: "cloud hosting"
+  region_code: null
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 1000
+  max_subscribers: null
+
+variations:
+  # ── Profession / category terms ──
+  - {name: web_hosting,            keywords: "web hosting"}
+  - {name: web_hosting_review,     keywords: "web hosting review"}
+  - {name: cloud_hosting_tutorial, keywords: "cloud hosting tutorial"}
+  - {name: web_hosting_tutorial,   keywords: "web hosting tutorial"}
+
+  # ── Specific hosting types / providers ──
+  - {name: vps_hosting,        keywords: "vps hosting"}
+  - {name: wordpress_hosting,  keywords: "wordpress hosting"}
+  - {name: aws_hosting,        keywords: "aws hosting tutorial"}
+  - {name: shared_hosting,     keywords: "shared hosting"}
+  - {name: dedicated_server,   keywords: "dedicated server hosting"}
+
+  # ── Buyer-intent / comparison ──
+  - {name: best_web_hosting,   keywords: "best web hosting"}
+  - {name: cheap_web_hosting,  keywords: "cheap web hosting"}
+  - {name: hosting_comparison, keywords: "web hosting comparison"}

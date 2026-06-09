@@ -1,0 +1,34 @@
+# Real estate brokers / realtors — US-focused with Bay Area + Miami geo angles.
+
+name: ilias_real_estate_brokers
+
+base:
+  keywords: "real estate broker"
+  region_code: US
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 2000
+  max_subscribers: 100000
+
+variations:
+  # ── Profession synonyms ──
+  - {name: realtor,            keywords: "realtor"}
+  - {name: real_estate_agent,  keywords: "real estate agent"}
+  - {name: listing_agent,      keywords: "listing agent"}
+
+  # ── What they help with ──
+  - {name: buying_a_home,        keywords: "buying a home tips"}
+  - {name: selling_a_home,       keywords: "selling a home tips"}
+  - {name: real_estate_investing, keywords: "real estate investing"}
+
+  # ── Bay Area, California ──
+  - {name: realtor_bay_area,                keywords: "realtor bay area"}
+  - {name: real_estate_agent_san_francisco, keywords: "real estate agent san francisco"}
+  - {name: realtor_silicon_valley,          keywords: "realtor silicon valley"}
+
+  # ── Miami, Florida ──
+  - {name: realtor_miami,            keywords: "realtor miami"}
+  - {name: real_estate_agent_miami,  keywords: "real estate agent miami"}
+  - {name: realtor_south_florida,    keywords: "realtor south florida"}

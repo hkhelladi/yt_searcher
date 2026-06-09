@@ -1,0 +1,33 @@
+# Personal finance / money tips & hacks — global English content niche.
+# No region restriction (these creators reach worldwide audiences).
+# min_subscribers: 5000 to filter out the long tail of low-engagement channels.
+
+name: ilias_personal_finance_tips
+
+base:
+  keywords: "personal finance"
+  region_code: null
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 5000
+  max_subscribers: 50000
+
+variations:
+  # ── "Tips & hacks" angle ──
+  - {name: money_tips,           keywords: "money tips"}
+  - {name: money_hacks,          keywords: "money hacks"}
+  - {name: money_saving_hacks,   keywords: "money saving hacks"}
+  - {name: save_money_tips,      keywords: "save money tips"}
+  - {name: budgeting_tips,       keywords: "budgeting tips"}
+
+  # ── Education angle ──
+  - {name: personal_finance_tips, keywords: "personal finance tips"}
+  - {name: financial_literacy,    keywords: "financial literacy"}
+  - {name: financial_advice,      keywords: "financial advice"}
+
+  # ── Lifestyle angle ──
+  - {name: frugal_living,    keywords: "frugal living"}
+  - {name: financial_freedom, keywords: "financial freedom"}
+  - {name: debt_free_journey, keywords: "debt free journey"}

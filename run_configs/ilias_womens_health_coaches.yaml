@@ -1,0 +1,38 @@
+# Women's health coaches — US-focused with Bay Area + Miami geo angles.
+# Covers profession synonyms, sub-niches (hormones, fertility, postpartum, PCOS),
+# and geographic variations for local practitioners.
+
+name: ilias_womens_health_coaches
+
+base:
+  keywords: "women's health coach"
+  region_code: US
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 1000
+  max_subscribers: null
+
+variations:
+  # ── Profession synonyms ──
+  - {name: womens_wellness_coach,    keywords: "women's wellness coach"}
+  - {name: womens_nutrition_coach,   keywords: "women's nutrition coach"}
+  - {name: holistic_womens_health,   keywords: "holistic women's health"}
+
+  # ── Sub-niches ──
+  - {name: hormone_health_coach, keywords: "hormone health coach"}
+  - {name: hormone_balance,      keywords: "women's hormone balance"}
+  - {name: fertility_coach,      keywords: "fertility coach"}
+  - {name: postpartum_wellness,  keywords: "postpartum wellness coach"}
+  - {name: menstrual_cycle,      keywords: "menstrual cycle health"}
+  - {name: pcos_coach,           keywords: "pcos coach"}
+  - {name: perimenopause_coach,  keywords: "perimenopause coach"}
+
+  # ── Bay Area, California ──
+  - {name: womens_health_bay_area,         keywords: "women's health coach bay area"}
+  - {name: womens_health_san_francisco,    keywords: "women's health coach san francisco"}
+
+  # ── Miami, Florida ──
+  - {name: womens_health_miami,            keywords: "women's health coach miami"}
+  - {name: womens_wellness_miami,          keywords: "women's wellness coach miami"}

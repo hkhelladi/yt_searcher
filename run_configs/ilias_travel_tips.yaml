@@ -1,0 +1,32 @@
+# Travel tips & hacks — global English content niche.
+# No region restriction; min_subscribers: 5000 to filter long-tail noise.
+
+name: ilias_travel_tips
+
+base:
+  keywords: "travel tips"
+  region_code: null
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 5000
+  max_subscribers: 100000
+
+variations:
+  # ── "Tips & hacks" angle ──
+  - {name: travel_hacks,        keywords: "travel hacks"}
+  - {name: cheap_travel_hacks,  keywords: "cheap travel hacks"}
+  - {name: budget_travel_tips,  keywords: "budget travel tips"}
+  - {name: travel_advice,       keywords: "travel advice"}
+  - {name: travel_planning,     keywords: "travel planning tips"}
+
+  # ── Sub-niches ──
+  - {name: solo_travel_tips,    keywords: "solo travel tips"}
+  - {name: backpacking_tips,    keywords: "backpacking tips"}
+  - {name: digital_nomad,       keywords: "digital nomad travel"}
+  - {name: family_travel_tips,  keywords: "family travel tips"}
+
+  # ── Genre / creator angle ──
+  - {name: travel_vlogger,      keywords: "travel vlogger"}
+  - {name: travel_youtuber,     keywords: "travel youtuber"}

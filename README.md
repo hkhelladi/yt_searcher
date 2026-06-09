@@ -170,6 +170,7 @@ The YouTube Data API v3 provides a **free daily quota of 10,000 units** (resets 
 |---|---|---|
 | `search.list` | **100 units** per call | Once per 50 results requested |
 | `channels.list` | **1 unit** per call | Once per 50 channels to enrich |
+| `playlistItems.list` | **1 unit** per call | Once per **unique** channel (after dedup) to fetch `last_upload_at` and recent cadence |
 
 Cost examples per search block:
 
@@ -209,6 +210,9 @@ Each CSV file starts with metadata rows (prefixed with `#`) listing the full sea
 | `subscribers` | API | Subscriber count (or `hidden` if the creator opted out) |
 | `total_views` | API | Lifetime view count across all videos |
 | `video_count` | API | Number of public videos uploaded |
+| `last_upload_at` | API | Date of most recent video (`YYYY-MM-DD`); empty if no uploads |
+| `days_since_last_upload` | derived | Days between now and `last_upload_at` — best "is this channel alive?" signal |
+| `uploads_last_6mo` | derived | Count of videos uploaded in the last 180 days (capped at 50) — cadence indicator |
 | `emails` | extracted | Email addresses found in the channel description |
 | `websites` | extracted | Non-YouTube URLs found in the channel description |
 | `phone_numbers` | extracted | Phone numbers found in the channel description |
