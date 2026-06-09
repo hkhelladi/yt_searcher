@@ -4,6 +4,14 @@
 
 name: ilias_personal_finance_tips
 
+enrichment:
+  enabled: true
+  tech_detect: true
+  hunter_api_key: ""
+  limit: null
+  tier: null
+  exclude_shorts: true
+
 base:
   keywords: "personal finance"
   region_code: null

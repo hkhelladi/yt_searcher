@@ -73,6 +73,37 @@ variations:                              # optional — each is an additional se
 
 Each variation must have a `name`. Any other field is optional and falls back to `base`. A single YAML can therefore mix languages, regions, and orderings — the `montreal` variation above overrides `language` to `fr` while inheriting everything else from `base`.
 
+### Enrichment (optional)
+
+The search alone gives you the channel snapshot YouTube exposes — subscribers, recent uploads, the description. The **enrichment pipeline** layers on outreach signals: the creator's own website, who their tech stack suggests they are, affiliate networks they're using, services they sell, social profiles, traffic rank, a geo best-guess, a contact email, and a final score / tier. It's the same channel rows — just with extra columns.
+
+Enable it by adding an `enrichment:` block at the top level of a run_config:
+
+```yaml
+name: bc_mortgage_brokers_cities
+
+enrichment:
+  enabled: true            # default: false. Flip to off to keep the legacy CSV unchanged.
+  tech_detect: false       # M4 — requires `pip install python-Wappalyzer`. Off by default.
+  hunter_api_key: ""       # M7 — optional Hunter.io fallback when no email is on the site.
+  limit: null              # Wave cap: top-N rows after tier/score sort. null = no cap.
+  tier: null               # Wave filter: only export rows in this tier ("A"|"B"|"C"). null = all.
+  exclude_shorts: true     # Drop videos <60s from the avg-duration calculation.
+
+base:
+  keywords: "british columbia mortgage agent"
+  region_code: CA
+  ...
+```
+
+CLI flags override the YAML for the same keys: `--enrich` / `--no-enrich`, `--tier A`, `--limit 100`.
+
+When enrichment is on, the same `outputs/<run_name>_<timestamp>.csv` is written with ~25 extra columns appended (`site_url`, `domain`, `domain_created_at`, `site_type`, `has_affiliate_links`, `affiliate_networks`, `site_sells_services`, `social_profiles`, `traffic_rank`, `geo_best_guess`, `contact_email`, `score`, `tier`, `gate_failures`, `compliance_flag`, …). A SQLite cache is also written to `outputs/<run_name>/enrichment.db` and reused across runs of the same config — re-running skips stages already completed for each channel, so a crashed mid-run is resumable without burning fresh quota.
+
+Gated rows (inactive / no_site / no_email) are kept in the CSV and tagged in the `gate_failures` column rather than dropped — the pipeline produces a contact list, never sends. Rows with `geo_best_guess: CA` get `compliance_flag: CASL_REVIEW` (Canada's anti-spam law is stricter than US CAN-SPAM; verify your consent basis before any send).
+
+The enrichment pipeline depends on `httpx` and `isodate` (installed by `pip install -r requirements.txt`). Tech detection (`tech_detect: true`) additionally requires `pip install python-Wappalyzer` — keep it off if you don't need the `site_type` / `site_is_ecommerce` / `site_is_dynamic` columns.
+
 ### Alternative: direct CLI
 
 `youtube_searcher.py` can still be invoked directly against `config.yaml` (the flat list of named searches, no base/variation model):

@@ -1,0 +1,30 @@
+# Smoke-test config for the enrichment pipeline.
+# Small search (10 results, one variation) so a full enrichment pass finishes
+# quickly. Run with:
+#   python run.py run_configs/test_enrichment.yaml
+# Or override flags from the CLI:
+#   python run.py run_configs/test_enrichment.yaml --tier A --limit 5
+
+name: test_enrichment
+
+# Enrichment block — flip `enabled: false` to fall back to the original
+# search-only behavior. `tech_detect` adds python-Wappalyzer (install
+# separately) and is off by default. `limit` and `tier` slice the export
+# wave; `hunter_api_key` enables the M7 email fallback when present.
+enrichment:
+  enabled: true
+  tech_detect: false
+  hunter_api_key: ""
+  limit: null
+  tier: null
+  exclude_shorts: true
+
+base:
+  keywords: "british columbia mortgage agent"
+  region_code: CA
+  language: en
+  max_results: 10
+  order: relevance
+  search_type: channel
+  min_subscribers: 100
+  max_subscribers: null

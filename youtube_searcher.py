@@ -25,13 +25,17 @@ import json
 import os
 import re
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 from math import ceil
 
 import yaml
 from dotenv import load_dotenv
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+from enrichment import EnrichmentConfig, run_enrichment
+from enrichment.orchestrator import apply_wave_filter
+from enrichment.schema import EnrichedRecord
 
 load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
@@ -49,7 +53,8 @@ _PHONE_RE = re.compile(
     r"\(?\d{3}\)?[\s\-.]?\d{3}[\s\-.]?\d{4}"    # (XXX) XXX-XXXX variants
 )
 
-# CSV output columns (in order)
+# CSV output columns (in order). The enrichment block at the end is only
+# written when the run_config has `enrichment.enabled: true`.
 CSV_FIELDS = [
     # ── Search config (so each row is self-documenting) ──
     "search_name",
@@ -80,6 +85,36 @@ CSV_FIELDS = [
     "description_snippet",
     # ── Meta ──
     "fetched_at",
+]
+
+# Appended to CSV_FIELDS when enrichment is enabled.
+ENRICHMENT_FIELDS = [
+    "yt_topic_categories",
+    "yt_avg_video_seconds",
+    "yt_median_video_seconds",
+    "content_type",
+    "site_url",
+    "site_resolved",
+    "site_final_url",
+    "domain",
+    "domain_created_at",
+    "site_type",
+    "site_is_dynamic",
+    "site_is_ecommerce",
+    "site_technologies",
+    "has_affiliate_links",
+    "affiliate_networks",
+    "site_sells_services",
+    "social_profiles",
+    "traffic_rank",
+    "geo_best_guess",
+    "contact_email",
+    "contact_source",
+    "score",
+    "tier",
+    "gate_failures",
+    "compliance_flag",
+    "enriched_at",
 ]
 
 
@@ -165,12 +200,16 @@ def search_channels(youtube, search_cfg: dict) -> list[dict]:
 
 
 def enrich_channels(youtube, channel_ids: list[str]) -> list[dict]:
-    """Calls channels.list in batches of 50 to get full channel details."""
+    """Calls channels.list in batches of 50 to get full channel details.
+
+    Includes `topicDetails` so the enrichment pipeline (M2) has topic categories
+    available without an extra API call. Quota cost stays at 1 unit per batch.
+    """
     results = []
     for i in range(0, len(channel_ids), 50):
         batch = channel_ids[i : i + 50]
         resp = youtube.channels().list(
-            part="snippet,statistics,brandingSettings,contentDetails",
+            part="snippet,statistics,brandingSettings,contentDetails,topicDetails",
             id=",".join(batch),
             maxResults=50,
         ).execute()
@@ -319,6 +358,55 @@ def apply_filters(rows: list[dict], search_cfg: dict) -> list[dict]:
     return filtered
 
 
+def _fmt(value) -> str:
+    """Best-effort CSV stringification for enrichment field values."""
+    if value is None:
+        return ""
+    if isinstance(value, bool):
+        return "True" if value else "False"
+    if isinstance(value, (list, tuple)):
+        return " | ".join(str(v) for v in value)
+    if isinstance(value, dict):
+        return " | ".join(f"{k}:{v}" for k, v in value.items())
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    return str(value)
+
+
+def enrichment_row(record: EnrichedRecord | None) -> dict:
+    """Convert an EnrichedRecord into the CSV columns named in ENRICHMENT_FIELDS."""
+    if record is None:
+        return {k: "" for k in ENRICHMENT_FIELDS}
+    return {
+        "yt_topic_categories":   _fmt(record.yt_topic_categories),
+        "yt_avg_video_seconds":  _fmt(record.yt_avg_video_seconds),
+        "yt_median_video_seconds": _fmt(record.yt_median_video_seconds),
+        "content_type":          _fmt(record.content_type),
+        "site_url":              _fmt(record.site_url),
+        "site_resolved":         _fmt(record.site_resolved),
+        "site_final_url":        _fmt(record.site_final_url),
+        "domain":                _fmt(record.domain),
+        "domain_created_at":     _fmt(record.domain_created_at),
+        "site_type":             _fmt(record.site_type),
+        "site_is_dynamic":       _fmt(record.site_is_dynamic),
+        "site_is_ecommerce":     _fmt(record.site_is_ecommerce),
+        "site_technologies":     _fmt(record.site_technologies),
+        "has_affiliate_links":   _fmt(record.has_affiliate_links),
+        "affiliate_networks":    _fmt(record.affiliate_networks),
+        "site_sells_services":   _fmt(record.site_sells_services),
+        "social_profiles":       _fmt(record.social_profiles),
+        "traffic_rank":          _fmt(record.traffic_rank),
+        "geo_best_guess":        _fmt(record.geo_best_guess),
+        "contact_email":         _fmt(record.contact_email),
+        "contact_source":        _fmt(record.contact_source),
+        "score":                 _fmt(record.score),
+        "tier":                  _fmt(record.tier),
+        "gate_failures":         _fmt(record.gate_failures),
+        "compliance_flag":       _fmt(record.compliance_flag),
+        "enriched_at":           _fmt(record.enriched_at),
+    }
+
+
 OUTPUTS_DIR = "outputs"
 
 
@@ -329,6 +417,7 @@ def run_searches(
     dry_run: bool = False,
     output_path: str | None = None,
     show_quota: bool = True,
+    enrichment_config: EnrichmentConfig | None = None,
 ):
     """Run a list of search config dicts and write results to a single CSV.
 
@@ -337,6 +426,12 @@ def run_searches(
 
     Either `output_name` (CSV goes to outputs/{output_name}_{ts}.csv) or
     `output_path` (explicit file path) must be provided.
+
+    When `enrichment_config.enabled` is True, the deduplicated rows are passed
+    through the enrichment pipeline (`enrichment.run_enrichment`) and the CSV
+    is extended with the columns named in ENRICHMENT_FIELDS. The SQLite cache
+    is persisted under `outputs/<output_name>/enrichment.db` so subsequent
+    runs of the same config skip stages that have already completed.
     """
     api_key = os.getenv("YOUTUBE_API_KEY", "")
     if not api_key:
@@ -387,6 +482,7 @@ def run_searches(
     # ── Execute searches ─────────────────────────────────────
     youtube    = build("youtube", "v3", developerKey=api_key)
     all_rows   = []
+    channel_resources: dict[str, dict] = {}   # channel_id → raw channels.list resource
     fetched_at = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
     for s in searches:
@@ -398,6 +494,11 @@ def run_searches(
             err = json.loads(e.content)
             print(f"  API error: {err['error']['message']}")
             continue
+
+        for ch in channels:
+            cid = ch.get("id", "")
+            if cid and cid not in channel_resources:
+                channel_resources[cid] = ch
 
         rows = [channel_to_row(ch, s, fetched_at) for ch in channels]
         rows = apply_filters(rows, s)
@@ -424,6 +525,40 @@ def run_searches(
             playlist_id = row.pop("_uploads_playlist_id", "")
             row.update(get_channel_activity(youtube, playlist_id, now_utc=now_utc))
 
+    # ── Enrichment pipeline (optional) ───────────────────────
+    enrichment_on = bool(enrichment_config and enrichment_config.enabled)
+    enriched_records: list[EnrichedRecord] = []
+    if enrichment_on and all_rows:
+        relevant_ids = {row["channel_id"] for row in all_rows}
+        relevant_resources = {cid: channel_resources[cid] for cid in relevant_ids
+                              if cid in channel_resources}
+        enrichment_dir = output_name or os.path.splitext(os.path.basename(output))[0]
+        enrichment_output_dir = os.path.join(OUTPUTS_DIR, enrichment_dir)
+        print(f"\nEnrichment: running pipeline on {len(relevant_resources)} unique channel(s)...")
+        enriched_records = run_enrichment(
+            youtube=youtube,
+            channel_resources=relevant_resources,
+            config=enrichment_config,
+            output_dir=enrichment_output_dir,
+        )
+
+        # Apply wave filter (tier / limit) and reorder rows accordingly.
+        kept = apply_wave_filter(enriched_records, enrichment_config)
+        kept_order = {r.channel_id: i for i, r in enumerate(kept)}
+        kept_ids = set(kept_order)
+        before = len(all_rows)
+        all_rows = [r for r in all_rows if r["channel_id"] in kept_ids]
+        all_rows.sort(key=lambda r: kept_order.get(r["channel_id"], 10**9))
+        if len(all_rows) < before:
+            print(f"  Wave filter: {before} → {len(all_rows)} row(s) "
+                  f"(tier={enrichment_config.tier or 'any'}, "
+                  f"limit={enrichment_config.limit if enrichment_config.limit is not None else 'none'})")
+
+        # Merge enrichment fields into rows
+        records_by_id = {r.channel_id: r for r in enriched_records}
+        for row in all_rows:
+            row.update(enrichment_row(records_by_id.get(row["channel_id"])))
+
     # ── Write CSV ────────────────────────────────────────────
     if not all_rows:
         print("No results to write.")
@@ -435,6 +570,8 @@ def run_searches(
         "min_subscribers", "max_subscribers",
     ]
 
+    fields = CSV_FIELDS + (ENRICHMENT_FIELDS if enrichment_on else [])
+
     with open(output, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
 
@@ -443,14 +580,25 @@ def run_searches(
         for s in searches:
             writer.writerow(["#"] + [s.get(k, "") for k in config_keys])
         writer.writerow(["# fetched_at", fetched_at])
+        if enrichment_on:
+            writer.writerow([
+                "# enrichment",
+                f"enabled={enrichment_config.enabled}",
+                f"tech_detect={enrichment_config.tech_detect}",
+                f"hunter={'on' if enrichment_config.hunter_api_key else 'off'}",
+                f"tier={enrichment_config.tier or 'any'}",
+                f"limit={enrichment_config.limit if enrichment_config.limit is not None else 'none'}",
+            ])
         writer.writerow([])
 
         # Data
-        dict_writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
+        dict_writer = csv.DictWriter(f, fieldnames=fields, extrasaction="ignore")
         dict_writer.writeheader()
         dict_writer.writerows(all_rows)
 
     print(f"\nDone. {len(all_rows)} row(s) written to '{output}'")
+    if enrichment_on:
+        print(f"Enrichment DB:  outputs/{enrichment_dir}/enrichment.db")
 
 
 def run(config_path: str, search_name: str | None = None, dry_run: bool = False):

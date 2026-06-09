@@ -27,6 +27,7 @@ from pathlib import Path
 import yaml
 
 import youtube_searcher
+from enrichment import EnrichmentConfig
 
 RUN_CONFIGS_DIR = "run_configs"
 
@@ -100,6 +101,22 @@ def main():
         "--dry-run", action="store_true",
         help="Print quota estimate without making API calls",
     )
+    parser.add_argument(
+        "--enrich", dest="enrich", action="store_true", default=None,
+        help="Force-enable enrichment (overrides enrichment.enabled in the YAML)",
+    )
+    parser.add_argument(
+        "--no-enrich", dest="enrich", action="store_false",
+        help="Force-disable enrichment (overrides enrichment.enabled in the YAML)",
+    )
+    parser.add_argument(
+        "--tier", default=None, choices=["A", "B", "C"],
+        help="Wave filter: only export rows in this tier (enrichment must be on)",
+    )
+    parser.add_argument(
+        "--limit", type=int, default=None,
+        help="Wave cap: export at most N rows after tier/score sort (enrichment must be on)",
+    )
     args = parser.parse_args()
 
     if not args.config:
@@ -113,10 +130,28 @@ def main():
     main_name = cfg["name"]
     searches = build_searches(cfg)
 
+    # ── Build enrichment config (YAML defaults + CLI overrides) ─
+    enrichment_cfg = EnrichmentConfig.from_dict(cfg.get("enrichment"))
+    if args.enrich is not None:
+        enrichment_cfg.enabled = args.enrich
+    if args.tier is not None:
+        enrichment_cfg.tier = args.tier
+    if args.limit is not None:
+        enrichment_cfg.limit = args.limit
+    if (args.tier or args.limit) and not enrichment_cfg.enabled:
+        print("Note: --tier/--limit have no effect because enrichment is disabled.")
+
     print(f"Run config : {config_path}")
     print(f"Main run   : {main_name}")
     print(f"Searches   : {len(searches)}  (1 base + {len(searches) - 1} variation(s))")
     print(f"Output     : outputs/{main_name}_<timestamp>.csv")
+    if enrichment_cfg.enabled:
+        print(f"Enrichment : ON  (tech_detect={enrichment_cfg.tech_detect}, "
+              f"hunter={'on' if enrichment_cfg.hunter_api_key else 'off'}, "
+              f"tier={enrichment_cfg.tier or 'any'}, "
+              f"limit={enrichment_cfg.limit if enrichment_cfg.limit is not None else 'none'})")
+    else:
+        print("Enrichment : off")
     print()
     for s in searches:
         tag = "[base]" if s["name"] == main_name else "      "
@@ -130,6 +165,7 @@ def main():
         searches,
         output_name=main_name,
         dry_run=args.dry_run,
+        enrichment_config=enrichment_cfg,
     )
 
 
