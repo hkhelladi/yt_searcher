@@ -123,7 +123,7 @@ PRIORITY_FIELDS = [
     "channel_name", "channel_url", "country",
     "subscribers", "total_views", "video_count",
     "days_since_last_upload",
-    "websites", "description_snippet",
+    "site_final_url", "description_snippet",
     "site_is_dynamic", "site_is_ecommerce", "site_technologies",
     "has_affiliate_links", "site_sells_services",
     "contact_email", "phone_numbers", "social_profiles",
