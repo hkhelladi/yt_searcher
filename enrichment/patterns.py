@@ -84,18 +84,32 @@ def extract_urls(text: str) -> list[str]:
     return URL_RE.findall(text)
 
 
+_EMAIL_FAKE_SUFFIXES = (
+    # Image / font / asset filenames that look email-shaped after a hyphen
+    # (e.g. "logo-inverse@2x.png").
+    ".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp", ".ico",
+    ".woff", ".woff2", ".ttf", ".otf", ".eot",
+    ".css", ".js", ".map", ".json", ".xml", ".pdf",
+)
+
+
 def extract_emails(text: str) -> list[str]:
     if not text:
         return []
     found = list(MAILTO_RE.findall(text)) + list(EMAIL_RE.findall(text))
-    # Dedup preserving order
     seen = set()
     out = []
     for e in found:
         e = e.strip().rstrip(".,;:)>\"'")
-        if e and e.lower() not in seen:
-            seen.add(e.lower())
-            out.append(e)
+        if not e:
+            continue
+        lo = e.lower()
+        if lo in seen:
+            continue
+        if any(lo.endswith(suf) for suf in _EMAIL_FAKE_SUFFIXES):
+            continue
+        seen.add(lo)
+        out.append(e)
     return out
 
 

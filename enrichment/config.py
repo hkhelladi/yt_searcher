@@ -34,19 +34,66 @@ DEFAULT_SCORE_WEIGHTS: dict[str, float] = {
 }
 DEFAULT_TIER_THRESHOLDS: dict[str, float] = {"A": 7.0, "B": 4.0}  # ≥7 → A, ≥4 → B, else C
 
-# Aggregator/social hosts dropped when picking a candidate `site_url` in M3.
+# Hosts dropped when picking a candidate `site_url` in M3. These either don't
+# represent the creator's own site (socials, bio aggregators, short-link
+# wrappers) or are affiliate-network domains that should never beat the
+# creator's actual domain — even when they appear more often in descriptions.
 SOCIAL_AND_AGGREGATOR_HOSTS = frozenset({
+    # Social
     "youtube.com", "youtu.be",
     "instagram.com", "tiktok.com",
     "twitter.com", "x.com",
     "facebook.com", "fb.com", "fb.me",
     "linkedin.com",
-    "linktr.ee", "beacons.ai", "bio.link", "campsite.bio",
     "snapchat.com", "threads.net",
     "pinterest.com",
     "discord.gg", "discord.com",
     "t.me", "telegram.me",
+    # Bio / link-in-bio aggregators + one-page builders
+    "linktr.ee", "beacons.ai", "bio.link", "campsite.bio",
+    "carrd.co", "about.me", "flowpage.com", "stan.store",
+    # Free hosted publishing — creators usually live on a subdomain here;
+    # the picker's Pass A unblocks the subdomain when the name matches.
+    "wordpress.com", "blogger.com", "blogspot.com", "home.blog",
+    "weebly.com", "wixsite.com", "tumblr.com",
+    "ghost.io", "medium.com",
+    # Tipping / membership
     "patreon.com", "buymeacoffee.com", "ko-fi.com",
+    # Short links / URL wrappers
+    "bit.ly", "bitly.com", "tinyurl.com", "rebrand.ly",
+    "lnk.bio", "lnk.to", "ow.ly",
+    # Booking widgets (not the creator's site even when embedded)
+    "calendly.com", "cal.com", "savvycal.com", "tidycal.com",
+    # Creator-tool services that show up in About-page Links but aren't the
+    # creator's site — music licensing, podcast hosting, deep linking,
+    # icons, etc.
+    "epidemicsound.com", "soundstripe.com", "artlist.io", "bensound.com",
+    "buzzsprout.com", "anchor.fm", "spreaker.com", "transistor.fm",
+    "captivate.fm", "podbean.com",
+    "appsflyer.com", "onelink.me", "branch.io", "shortlinks.io",
+    "icons8.com", "flaticon.com", "fontawesome.com",
+    "tubebuddy.com", "vidiq.com",
+    "streamyard.com", "riverside.fm",
+    "skillshare.com", "teachable.com", "podia.com", "kajabi.com",
+    "thinkific.com",
+    # CRM / lead-capture tools sometimes linked in About
+    "mailchimp.com", "convertkit.com", "beehiiv.com", "substack.com",
+    # Affiliate networks — mirror of patterns.AFFILIATE_PATTERNS, registrable form
+    "amazon.com", "amazon.co.uk", "amazon.ca", "amazon.de",
+    "amazon.fr", "amazon.it", "amazon.es", "amazon.com.au",
+    "amazon.co.jp", "amazon.in", "amazon.com.mx", "amazon.com.br",
+    "amzn.to",
+    "pxf.io", "sjv.io", "ojrq.net",
+    "anrdoezrs.net", "dpbolvw.net", "tkqlhce.com", "jdoqocy.com",
+    "linksynergy.com", "rakuten.com",
+    "shareasale.com", "shrsl.com",
+    "geni.us",
+    "gumroad.com",
+    "avantlink.com",
+    "awin1.com", "awin.com",
+    "clickbank.net",
+    "partnerize.com", "prf.hn",
+    "refersion.com",
 })
 
 

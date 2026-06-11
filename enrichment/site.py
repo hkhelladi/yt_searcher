@@ -11,9 +11,10 @@ HTTP semaphore.
 from __future__ import annotations
 
 import asyncio
+import re
 from collections import Counter
 from datetime import date, datetime
-from urllib.parse import urljoin, urlparse
+from urllib.parse import unquote, urljoin, urlparse
 
 import httpx
 
@@ -55,25 +56,151 @@ def _is_social_or_aggregator(host: str) -> bool:
     return False
 
 
-def pick_candidate_site(*texts: str) -> str | None:
-    """Walk every URL in the combined text, drop social/aggregator hosts,
-    and return the most-frequent registrable-domain URL (full https URL)."""
-    counter: Counter[str] = Counter()
-    first_url: dict[str, str] = {}
-    for text in texts:
+def _channel_name_token(title: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", (title or "").lower())
+
+
+def _longest_common_substring_len(a: str, b: str) -> int:
+    if not a or not b:
+        return 0
+    m, n = len(a), len(b)
+    # Rolling DP to stay O(min(m,n)) memory.
+    prev = [0] * (n + 1)
+    best = 0
+    for i in range(1, m + 1):
+        curr = [0] * (n + 1)
+        ai = a[i - 1]
+        for j in range(1, n + 1):
+            if ai == b[j - 1]:
+                curr[j] = prev[j - 1] + 1
+                if curr[j] > best:
+                    best = curr[j]
+        prev = curr
+    return best
+
+
+def _name_overlap(channel_token: str, domain_key: str) -> bool:
+    """True if the channel-title token and the domain's primary label share a
+    run of ≥5 consecutive characters. Beats full-substring matching on cases
+    where neither side fully contains the other (e.g. channel "Romain Faure"
+    + domain "itsromain.com" share "romain")."""
+    if not channel_token or not domain_key:
+        return False
+    dom_token = domain_key.split(".", 1)[0]
+    return _longest_common_substring_len(channel_token, dom_token) >= 5
+
+
+def pick_candidate_site(
+    weighted_sources: list[tuple[str, float]],
+    channel_title: str = "",
+) -> str | None:
+    """Pick the creator's likely own site.
+
+    Three-tier decision:
+      A. **Aggregator-subdomain rule** — if any URL lives on a blocked
+         registrable (carrd.co, home.blog, …) but the subdomain prefix
+         name-matches the channel title (e.g. `pinoypersonalfinance.carrd.co`
+         + channel "Pinoy.PersonalFinance"), return that full URL. The
+         creator has no real site, but their hosted page is the best we have.
+      B. **Name-matched registrable** — among non-blocked domains, prefer
+         any whose primary label name-matches the channel title (e.g.
+         "EveryDollar" → `everydollar.com`). Tie-break by weighted frequency.
+      C. **Weighted frequency leader** — fall back to the most-mentioned
+         non-blocked domain across all sources.
+
+    Each URL is deduped per source so repeated mentions inside one video
+    description don't artificially inflate the count.
+    """
+    # Tokenize each source separately so per-source dedup is honoured later.
+    parsed: list[tuple[float, list[tuple[str, str, str]]]] = []
+    for text, weight in weighted_sources:
+        urls: list[tuple[str, str, str]] = []
         for url in extract_urls(text):
             host = host_of(url)
-            if _is_social_or_aggregator(host):
+            if not host:
                 continue
             key = _registrable_key(host)
             if not key:
                 continue
-            counter[key] += 1
-            first_url.setdefault(key, f"https://{key}")
-    if not counter:
+            urls.append((url, host, key))
+        parsed.append((weight, urls))
+
+    if not any(urls for _, urls in parsed):
         return None
-    top_key, _ = counter.most_common(1)[0]
-    return first_url[top_key]
+
+    channel_token = _channel_name_token(channel_title) if channel_title else ""
+
+    # Pass A: name-matched subdomain on a blocked-registrable host.
+    if channel_token:
+        for _, urls in parsed:
+            for url, host, key in urls:
+                if not _is_social_or_aggregator(key):
+                    continue
+                if host == key or not host.endswith("." + key):
+                    continue
+                prefix = host[: -len(key) - 1]
+                prefix_norm = _channel_name_token(prefix)
+                if prefix_norm and _longest_common_substring_len(channel_token, prefix_norm) >= 5:
+                    return url
+
+    # Pass B + C: weighted scoring across non-blocked registrables.
+    score: Counter[str] = Counter()
+    first_url: dict[str, str] = {}
+    for weight, urls in parsed:
+        seen_in_source: set[str] = set()
+        for url, host, key in urls:
+            if _is_social_or_aggregator(key):
+                continue
+            if key in seen_in_source:
+                continue
+            seen_in_source.add(key)
+            score[key] += weight
+            first_url.setdefault(key, f"https://{key}")
+
+    if not score:
+        return None
+
+    if channel_token:
+        matches = {k: s for k, s in score.items() if _name_overlap(channel_token, k)}
+        if matches:
+            return first_url[max(matches, key=matches.get)]
+
+    return first_url[max(score, key=score.get)]
+
+
+# YouTube wraps every outbound link as
+# `https://www.youtube.com/redirect?...&q=<URL-encoded-destination>`.
+# We match the `q=` parameter directly (works whether the wrapper is present
+# in the HTML or just the inner JSON of `ytInitialData`).
+_YT_REDIRECT_Q_RE = re.compile(r'q=(https?%3A%2F%2F[^&"\\\s]+)', re.IGNORECASE)
+
+
+async def fetch_about_page_links(
+    client: httpx.AsyncClient,
+    channel_id: str,
+) -> list[str]:
+    """Scrape the channel's /about page for the URL targets behind YouTube's
+    redirect wrappers. These are the channel's "Links" section + any inline
+    description links — the highest-authority source for what the creator
+    considers their own URLs. Returns deduped URLs; empty on any failure."""
+    if not channel_id:
+        return []
+    url = f"https://www.youtube.com/channel/{channel_id}/about?hl=en"
+    resp = await _get(client, url)
+    if resp is None or resp.status_code != 200 or not resp.text:
+        return []
+    encoded = _YT_REDIRECT_Q_RE.findall(resp.text)
+    out: list[str] = []
+    seen: set[str] = set()
+    for raw in encoded:
+        try:
+            u = unquote(raw)
+        except Exception:
+            continue
+        if u and u not in seen and not u.startswith("https://www.youtube.com"):
+            seen.add(u)
+            out.append(u)
+    return out
 
 
 async def _get(client: httpx.AsyncClient, url: str) -> httpx.Response | None:
@@ -154,11 +281,17 @@ async def _enrich_one_site(
     semaphore: asyncio.Semaphore,
 ) -> EnrichedRecord:
     async with semaphore:
-        # 1. Discover candidate URL from descriptions
-        candidate = pick_candidate_site(
-            record.yt_channel_description,
-            *record.yt_video_descriptions,
-        )
+        # 1. Discover candidate URL. Weighted sources from highest authority
+        # (channel's official Links section) down to least authoritative
+        # (individual video descriptions, which often contain affiliate
+        # promotions for third-party brands).
+        about_links = await fetch_about_page_links(client, record.channel_id)
+        weighted_sources: list[tuple[str, float]] = [
+            ("\n".join(about_links), 5.0),
+            (record.yt_channel_description, 2.0),
+            *((d, 1.0) for d in record.yt_video_descriptions),
+        ]
+        candidate = pick_candidate_site(weighted_sources, channel_title=record.channel_title)
         record.site_url = candidate
         if not candidate:
             record.site_resolved = False
@@ -169,6 +302,15 @@ async def _enrich_one_site(
         # 2. Resolve homepage
         final_url, domain, html = await resolve_homepage(client, candidate)
         if not final_url or not html:
+            record.site_resolved = False
+            if "M3" not in record.stages_completed:
+                record.stages_completed.append("M3")
+            return record
+
+        # If the candidate redirected onto a blocked host (e.g. onelink.me →
+        # appsflyer.com), treat as no site rather than letting downstream
+        # stages enrich the wrapper service.
+        if domain and _is_social_or_aggregator(domain):
             record.site_resolved = False
             if "M3" not in record.stages_completed:
                 record.stages_completed.append("M3")

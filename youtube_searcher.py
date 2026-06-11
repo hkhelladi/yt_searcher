@@ -79,7 +79,7 @@ CSV_FIELDS = [
     "days_since_last_upload",
     "uploads_last_6mo",
     # ── Contact / business info ──
-    "emails",
+    "contact_email",
     "websites",
     "phone_numbers",
     "description_snippet",
@@ -108,13 +108,25 @@ ENRICHMENT_FIELDS = [
     "social_profiles",
     "traffic_rank",
     "geo_best_guess",
-    "contact_email",
     "contact_source",
     "score",
     "tier",
     "gate_failures",
     "compliance_flag",
     "enriched_at",
+]
+
+# When written to CSV these are pulled to the front of every row in this
+# exact order. Any of them that doesn't exist in the current field set
+# (e.g. enrichment-only columns when enrichment is off) is silently skipped.
+PRIORITY_FIELDS = [
+    "channel_name", "channel_url", "country",
+    "subscribers", "total_views", "video_count",
+    "days_since_last_upload",
+    "websites", "description_snippet",
+    "site_is_dynamic", "site_is_ecommerce", "site_technologies",
+    "has_affiliate_links", "site_sells_services",
+    "contact_email", "phone_numbers", "social_profiles",
 ]
 
 
@@ -333,7 +345,10 @@ def channel_to_row(channel: dict, search_cfg: dict, fetched_at: str) -> dict:
         "days_since_last_upload": "",
         "uploads_last_6mo":       "",
         "_uploads_playlist_id":   uploads_playlist_id,  # internal, popped before CSV write
-        "emails":             emails,
+        # Emails extracted from the YouTube channel description + brandingSettings.
+        # When enrichment runs, the M7 site-scrape / Hunter result is merged into
+        # this same column via _merge_emails().
+        "contact_email":      emails,
         "websites":           websites,
         "phone_numbers":      phones,
         "description_snippet": description[:300].replace("\n", " "),
@@ -373,6 +388,27 @@ def _fmt(value) -> str:
     return str(value)
 
 
+def _merge_emails(*sources: str) -> str:
+    """Union and dedupe (case-insensitive) ' | '-separated email lists from
+    multiple sources. Used to fold the M7 site-scraped / Hunter email back
+    into the same column as the YouTube-description-scraped emails."""
+    seen: set[str] = set()
+    out: list[str] = []
+    for src in sources:
+        if not src:
+            continue
+        for raw in str(src).split(" | "):
+            e = raw.strip()
+            if not e:
+                continue
+            lo = e.lower()
+            if lo in seen:
+                continue
+            seen.add(lo)
+            out.append(e)
+    return " | ".join(out)
+
+
 def enrichment_row(record: EnrichedRecord | None) -> dict:
     """Convert an EnrichedRecord into the CSV columns named in ENRICHMENT_FIELDS."""
     if record is None:
@@ -397,7 +433,6 @@ def enrichment_row(record: EnrichedRecord | None) -> dict:
         "social_profiles":       _fmt(record.social_profiles),
         "traffic_rank":          _fmt(record.traffic_rank),
         "geo_best_guess":        _fmt(record.geo_best_guess),
-        "contact_email":         _fmt(record.contact_email),
         "contact_source":        _fmt(record.contact_source),
         "score":                 _fmt(record.score),
         "tier":                  _fmt(record.tier),
@@ -405,6 +440,17 @@ def enrichment_row(record: EnrichedRecord | None) -> dict:
         "compliance_flag":       _fmt(record.compliance_flag),
         "enriched_at":           _fmt(record.enriched_at),
     }
+
+
+def order_csv_fields(base: list[str], priority: list[str]) -> list[str]:
+    """Return `base` reordered so that columns named in `priority` appear
+    first in priority order (skipping any not in base), followed by the
+    remaining base columns in their original relative order."""
+    base_set = set(base)
+    leading = [f for f in priority if f in base_set]
+    leading_set = set(leading)
+    trailing = [f for f in base if f not in leading_set]
+    return leading + trailing
 
 
 OUTPUTS_DIR = "outputs"
@@ -554,10 +600,15 @@ def run_searches(
                   f"(tier={enrichment_config.tier or 'any'}, "
                   f"limit={enrichment_config.limit if enrichment_config.limit is not None else 'none'})")
 
-        # Merge enrichment fields into rows
+        # Merge enrichment fields into rows. `contact_email` is unioned with
+        # the row's existing YouTube-description-derived emails rather than
+        # overwritten — see _merge_emails.
         records_by_id = {r.channel_id: r for r in enriched_records}
         for row in all_rows:
-            row.update(enrichment_row(records_by_id.get(row["channel_id"])))
+            rec = records_by_id.get(row["channel_id"])
+            row.update(enrichment_row(rec))
+            enrich_email = rec.contact_email if rec else ""
+            row["contact_email"] = _merge_emails(row.get("contact_email", ""), enrich_email)
 
     # ── Write CSV ────────────────────────────────────────────
     if not all_rows:
@@ -570,7 +621,10 @@ def run_searches(
         "min_subscribers", "max_subscribers",
     ]
 
-    fields = CSV_FIELDS + (ENRICHMENT_FIELDS if enrichment_on else [])
+    fields = order_csv_fields(
+        CSV_FIELDS + (ENRICHMENT_FIELDS if enrichment_on else []),
+        PRIORITY_FIELDS,
+    )
 
     with open(output, "w", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)

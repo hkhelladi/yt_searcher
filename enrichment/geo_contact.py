@@ -121,6 +121,11 @@ _EMAIL_BLOCKLIST_PREFIXES = (
 _EMAIL_BLOCKLIST_DOMAINS = (
     "example.com", "example.org", "example.net", "sentry.io",
     "wixpress.com", "wordpress.com",
+    # Common template / theme placeholder domains
+    "mysite.com", "yoursite.com", "yourwebsite.com", "yourdomain.com",
+    "domain.com", "website.com", "sitename.com",
+    "test.com", "demo.com",
+    "email.com",
 )
 
 
@@ -128,8 +133,13 @@ def _is_plausible_contact_email(email: str) -> bool:
     e = email.lower()
     if any(e.startswith(p) for p in _EMAIL_BLOCKLIST_PREFIXES):
         return False
-    if any(e.endswith("@" + d) for d in _EMAIL_BLOCKLIST_DOMAINS):
+    at = e.rfind("@")
+    if at < 0:
         return False
+    domain = e[at + 1:]
+    for blocked in _EMAIL_BLOCKLIST_DOMAINS:
+        if domain == blocked or domain.endswith("." + blocked):
+            return False
     return True
 
 

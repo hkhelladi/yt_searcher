@@ -1,20 +1,23 @@
-# Canada home inspectors — biggest cities in every major province.
-# BC gets top-8 coverage since it's a hot market.
-# QC cities override language to `fr` and use the professional term
-# "inspecteur en bâtiment" (standard in Quebec).
+# Women's health coaches — US-focused with Bay Area + Miami geo angles.
+# Covers profession synonyms, sub-niches (hormones, fertility, postpartum, PCOS),
+# and geographic variations for local practitioners.
 
-name: ca_home_inspectors_cities
+name: ilias_womens_health_coaches
 
 base:
-  keywords: "home inspector canada"
-  region_code: CA
+  keywords: "women's health coach"
+  region_code: US
   language: en
   max_results: 50
   order: relevance
   search_type: channel
-  min_subscribers: 100
+  min_subscribers: 1000
   max_subscribers: null
 
-variations:
-  # ── Ontario ──
-  - {name: toronto,        keywords: "home inspector toronto"}
+enrichment:
+  enabled: true
+  tech_detect: true
+  hunter_api_key: ""
+  limit: null
+  tier: null
+  exclude_shorts: true
