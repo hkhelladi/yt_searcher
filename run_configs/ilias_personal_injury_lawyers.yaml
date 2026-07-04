@@ -3,6 +3,14 @@
 
 name: ilias_personal_injury_lawyers
 
+enrichment:
+  enabled: true
+  tech_detect: false
+  hunter_api_key: ""
+  limit: null
+  tier: null
+  exclude_shorts: true
+
 base:
   keywords: "personal injury lawyer"
   region_code: US
@@ -32,6 +40,7 @@ variations:
   - {name: personal_injury_bay_area,            keywords: "personal injury lawyer bay area"}
   - {name: accident_attorney_san_francisco,     keywords: "accident attorney san francisco"}
   - {name: personal_injury_oakland,             keywords: "personal injury lawyer oakland"}
+  - { name: personal_injury_la,             keywords: "personal injury lawyer los angeles" }
 
   # ── Miami, Florida ──
   - {name: personal_injury_miami,    keywords: "personal injury lawyer miami"}

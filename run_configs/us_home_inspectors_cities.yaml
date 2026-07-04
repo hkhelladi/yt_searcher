@@ -1,0 +1,59 @@
+# US home inspectors — top 20 cities by population.
+# Enrichment ON with tech detection so we can filter by site_type / ecommerce /
+# CMS in the output CSV. Hunter fallback off (set hunter_api_key to enable).
+#
+# Note: the `keywords` lines wrap `"home inspector"` in YAML-single-quoted
+# embedded double-quotes. The double-quotes survive into the YouTube `q=`
+# parameter, where they force YouTube to treat "home inspector" as a required
+# phrase rather than a bag of words. Without this, YouTube ranks heavily on
+# the city-name half of the query and the results fill up with music-Topic
+# channels and unrelated city-themed vlogs.
+
+name: us_home_inspectors_cities
+
+enrichment:
+  enabled: true
+  tech_detect: true
+  hunter_api_key: ""
+  limit: null
+  tier: null
+  exclude_shorts: true
+
+base:
+  keywords: '"home inspector" usa'
+  region_code: US
+  language: en
+  max_results: 50
+  order: relevance
+  search_type: channel
+  min_subscribers: 100
+  max_subscribers: null
+
+variations:
+  # ── Northeast ──
+  - {name: new_york,     keywords: '"home inspector" new york city'}
+  - {name: philadelphia, keywords: '"home inspector" philadelphia'}
+  - {name: washington_dc, keywords: '"home inspector" washington dc'}
+
+  # ── Midwest ──
+  - {name: chicago,      keywords: '"home inspector" chicago'}
+  - {name: columbus_oh,  keywords: '"home inspector" columbus ohio'}
+  - {name: indianapolis, keywords: '"home inspector" indianapolis'}
+
+  # ── South ──
+  - {name: houston,      keywords: '"home inspector" houston'}
+  - {name: san_antonio,  keywords: '"home inspector" san antonio'}
+  - {name: dallas,       keywords: '"home inspector" dallas'}
+  - {name: austin,       keywords: '"home inspector" austin texas'}
+  - {name: fort_worth,   keywords: '"home inspector" fort worth'}
+  - {name: jacksonville, keywords: '"home inspector" jacksonville florida'}
+  - {name: charlotte,    keywords: '"home inspector" charlotte nc'}
+
+  # ── West ──
+  - {name: los_angeles,  keywords: '"home inspector" los angeles'}
+  - {name: phoenix,      keywords: '"home inspector" phoenix arizona'}
+  - {name: san_diego,    keywords: '"home inspector" san diego'}
+  - {name: san_jose,     keywords: '"home inspector" san jose california'}
+  - {name: san_francisco, keywords: '"home inspector" san francisco'}
+  - {name: seattle,      keywords: '"home inspector" seattle'}
+  - {name: denver,       keywords: '"home inspector" denver'}

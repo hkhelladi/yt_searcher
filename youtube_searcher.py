@@ -208,7 +208,19 @@ def search_channels(youtube, search_cfg: dict) -> list[dict]:
         if not page_token:
             break
 
-    return enrich_channels(youtube, channel_ids)
+    return [ch for ch in enrich_channels(youtube, channel_ids) if not _is_noise_channel(ch)]
+
+
+def _is_noise_channel(channel: dict) -> bool:
+    """Drop YouTube-internal auto-generated channels that match prospecting
+    queries for the wrong reason. The dominant case is "Artist - Topic"
+    channels, auto-generated for every musician on YouTube Music — they have
+    no real owner and surface for any query whose location terms overlap
+    with song titles."""
+    title = (channel.get("snippet", {}) or {}).get("title", "") or ""
+    if title.endswith(" - Topic"):
+        return True
+    return False
 
 
 def enrich_channels(youtube, channel_ids: list[str]) -> list[dict]:
